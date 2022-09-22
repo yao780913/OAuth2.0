@@ -32,7 +32,7 @@ namespace OAuth20.Lab.Controllers
 
         public IActionResult Authorize()
         {
-            var uri = "https://www.facebook.com/v14.0/dialog/oauth";
+            const string uri = "https://www.facebook.com/v14.0/dialog/oauth";
             var param = new Dictionary<string, string>
             {
                 { "client_id", _clientId },
@@ -47,7 +47,7 @@ namespace OAuth20.Lab.Controllers
 
         public async Task<IActionResult> Callback(string code)
         {
-            var uri = "https://graph.facebook.com/v14.0/oauth/access_token";
+            const string uri = "https://graph.facebook.com/v14.0/oauth/access_token";
 
             using var httpClient = _httpClientFactory.CreateClient();
 
@@ -70,22 +70,22 @@ namespace OAuth20.Lab.Controllers
             }
 
             string accessToken = Convert.ToString(
-                JsonConvert.DeserializeObject<dynamic>(content).access_token);
+                JsonConvert.DeserializeObject<dynamic>(content)!.access_token);
 
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                throw new ArgumentNullException("access_token is empty");
+                throw new ArgumentNullException($"access_token is empty");
             }
 
-            HttpContext.Response.Cookies.Append(CookieNames.FacebokAccessToken, accessToken);
+            HttpContext.Response.Cookies.Append(CookieNames.FacebookAccessToken, accessToken);
             return RedirectToAction("Index", "Home");
         }
 
         public async Task<IActionResult> UserData()
         {
-            if (!HttpContext.Request.Cookies.TryGetValue(CookieNames.FacebokAccessToken, out var accessToken))
+            if (!HttpContext.Request.Cookies.TryGetValue(CookieNames.FacebookAccessToken, out var accessToken))
             {
-                throw new ArgumentNullException("access_token is empty");
+                throw new ArgumentNullException($"access_token is empty");
             }
 
             var userId = await GetUserId(accessToken);
@@ -120,7 +120,7 @@ namespace OAuth20.Lab.Controllers
                 return userId;
             }
 
-            var uri = "https://graph.facebook.com/me";
+            const string uri = "https://graph.facebook.com/me";
 
             var param = new Dictionary<string, string>
             {
@@ -138,7 +138,7 @@ namespace OAuth20.Lab.Controllers
                 throw new HttpRequestException($"Request is failed. {response.StatusCode}, {content}");
             }
 
-            userId = (JsonConvert.DeserializeObject<dynamic>(content)).id;
+            userId = JsonConvert.DeserializeObject<dynamic>(content)!.id;
 
             HttpContext.Response.Cookies.Append(CookieNames.FacebookUserId, userId);
 

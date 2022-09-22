@@ -49,7 +49,7 @@ namespace OAuth20.Lab.Controllers
 
             var content = await response.Content.ReadAsStringAsync();
 
-            string accessToken = JsonConvert.DeserializeObject<dynamic>(content).access_token;
+            string accessToken = JsonConvert.DeserializeObject<dynamic>(content)!.access_token;
 
             if (string.IsNullOrEmpty(accessToken))
             {
@@ -81,9 +81,9 @@ namespace OAuth20.Lab.Controllers
 
             using var httpClient = _httpClientFactory.CreateClient();
 
-            if (HttpContext.Request.Cookies.TryGetValue(CookieNames.LineMessageAccessToken, out var cookie))
+            if (!HttpContext.Request.Cookies.TryGetValue(CookieNames.LineMessageAccessToken, out var cookie))
             {
-                throw new ArgumentNullException("cookie is empty");
+                throw new ArgumentNullException($"cookie is empty");
             }
 
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", cookie);
@@ -97,7 +97,7 @@ namespace OAuth20.Lab.Controllers
                 throw new HttpRequestException(response.ReasonPhrase);
             }
 
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var _ = await response.Content.ReadAsStringAsync();
 
             return RedirectToAction("Index", "Home");
         }

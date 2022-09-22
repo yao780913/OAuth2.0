@@ -9,7 +9,7 @@ namespace OAuth20.Lab.Models
         /// <summary>
         /// Line Login AccessToken
         /// </summary>
-        public static string LineLoginAcceccToken => "LineLoginAcceccToken";
+        public static string LineLoginAccessToken => "LineLoginAccessToken";
 
         /// <summary>
         /// Line Login Id Token
@@ -29,7 +29,7 @@ namespace OAuth20.Lab.Models
         /// <summary>
         /// Facebook Login AccessToken
         /// </summary>
-        public static string FacebokAccessToken => "FacebokAccessToken";
+        public static string FacebookAccessToken => "FacebookAccessToken";
 
         /// <summary>
         /// Facebook User Id

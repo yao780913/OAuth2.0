@@ -16,7 +16,7 @@ namespace OAuth20.Lab.Controllers
 {
     public class LineNotifyController : Controller
     {
-        private const string AUTHORIZE_URI = "https://notify-bot.line.me/oauth/authorize";
+        private const string AuthorizeUri = "https://notify-bot.line.me/oauth/authorize";
 
         private readonly LineNotifyCredential _lineNotify;
         private readonly string _redirectUri;
@@ -40,7 +40,7 @@ namespace OAuth20.Lab.Controllers
                 { "state", "123456" }
             };
 
-            var requestUri = QueryHelpers.AddQueryString(AUTHORIZE_URI, param);
+            var requestUri = QueryHelpers.AddQueryString(AuthorizeUri, param);
 
             return Redirect(requestUri);
         }
@@ -71,7 +71,7 @@ namespace OAuth20.Lab.Controllers
             var responseContent = JsonConvert.DeserializeObject<dynamic>(
                 (await response.Content.ReadAsStringAsync()));
 
-            string accessToken = Convert.ToString(responseContent.access_token);
+            string accessToken = Convert.ToString(responseContent!.access_token);
 
             if (!string.IsNullOrWhiteSpace(accessToken))
                 HttpContext.Response.Cookies.Append(CookieNames.LineNotifyAccessToken, accessToken);

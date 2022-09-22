@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -81,7 +80,7 @@ namespace OAuth20.Lab.Controllers
                 throw new HttpRequestException(responseContent);
             }
 
-            string accessToken = Convert.ToString(responseContent.access_token);
+            string accessToken = Convert.ToString(responseContent!.access_token);
 
             (string userId, string email) userInfo = DecodeJwt(Convert.ToString(responseContent.id_token));
 
@@ -104,18 +103,18 @@ namespace OAuth20.Lab.Controllers
                 throw new Exception("accessToken is empty");
             }
 
-            if (!HttpContext.Request.Cookies.TryGetValue(CookieNames.GoogleUserId, out var userId))
+            if (!HttpContext.Request.Cookies.TryGetValue(CookieNames.GoogleUserId, out var _))
             {
                 throw new Exception("google userId is empty");
             }
 
-            var uri = "https://www.googleapis.com/oauth2/v2/userinfo";
+            const string uri = "https://www.googleapis.com/oauth2/v2/userinfo";
 
-            //var personFileds = new List<string> { "names", "emailAddresses", "photos" };
+            //var personFields = new List<string> { "names", "emailAddresses", "photos" };
 
             //var requestUri = QueryHelpers.AddQueryString(uri, new Dictionary<string, string>
             //{
-            //    { "personFields", string.Join(',', personFileds)}
+            //    { "personFields", string.Join(',', personFields)}
             //});
 
             using var httpClient = _httpClientFactory.CreateClient();
@@ -149,13 +148,13 @@ namespace OAuth20.Lab.Controllers
                 var payload = idTokens[1];
                 var signature = idTokens[2];
 
-                var payload_decoded = Base64UrlEncoder.Decode(payload);
+                var payloadDecoded = Base64UrlEncoder.Decode(payload);
 
-                var payload_json = JObject.Parse(payload_decoded);
+                var payloadJson = JObject.Parse(payloadDecoded);
 
                 return (
-                    userId: Convert.ToString(payload_json["sub"]),
-                    email: Convert.ToString(payload_json["email"])
+                    userId: Convert.ToString(payloadJson["sub"]),
+                    email: Convert.ToString(payloadJson["email"])
                 );
             }
             catch (Exception ex)

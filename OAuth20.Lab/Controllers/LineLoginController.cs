@@ -79,11 +79,11 @@ namespace OAuth20.Lab.Controllers
             var responseContent = JsonConvert.DeserializeObject<dynamic>(
                 (await response.Content.ReadAsStringAsync()));
 
-            string accessToken = Convert.ToString(responseContent.access_token);
+            string accessToken = Convert.ToString(responseContent!.access_token);
             string idToken = Convert.ToString(responseContent.id_token);
 
             if (!string.IsNullOrWhiteSpace(accessToken))
-                HttpContext.Response.Cookies.Append(CookieNames.LineLoginAcceccToken, accessToken);
+                HttpContext.Response.Cookies.Append(CookieNames.LineLoginAccessToken, accessToken);
 
             if (!string.IsNullOrWhiteSpace(idToken))
                 HttpContext.Response.Cookies.Append(CookieNames.LineLoginIdToken, idToken);
@@ -95,7 +95,7 @@ namespace OAuth20.Lab.Controllers
         {
             var url = "https://api.line.me/v2/profile";
 
-            var accessToken = HttpContext.Request.Cookies[CookieNames.LineLoginAcceccToken];
+            var accessToken = HttpContext.Request.Cookies[CookieNames.LineLoginAccessToken];
             if (string.IsNullOrWhiteSpace(accessToken))
             {
                 return RedirectToAction("Authorize");
