@@ -7,13 +7,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using OAuth20.Lab.Models;
-
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
+using OAuth20.Common.Model;
+using OAuth20.Common.Models;
 
 namespace OAuth20.Lab.Controllers
 {

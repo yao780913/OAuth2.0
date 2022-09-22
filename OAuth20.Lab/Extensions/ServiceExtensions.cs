@@ -1,4 +1,5 @@
-﻿using OAuth20.Lab.Models;
+﻿using OAuth20.Common.Model;
+using OAuth20.Common.Models;
 
 namespace OAuth20.Lab.Extensions;
 
