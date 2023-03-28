@@ -55,5 +55,7 @@ namespace OAuth20.Lab.Models
         /// Github AccessToken
         /// </summary>
         public static string GithubAccessToken => "GithubAccessToken";
+
+        public static string AzureDevopsAccessToken => "AzureDevopsAccessToken";
     }
 }
