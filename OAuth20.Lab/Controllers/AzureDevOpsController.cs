@@ -1,7 +1,9 @@
-﻿using System.Web;
+﻿using System.Net.Http.Headers;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OAuth20.Common.Models;
 using OAuth20.Lab.Models;
@@ -14,28 +16,34 @@ public class AzureDevOpsController : Controller
 
     private readonly string _clientId;
     private readonly string _clientSecret;
+    private readonly string _organization;
+    private readonly string _project;
     private readonly IHttpClientFactory _httpClientFactory;
+    
 
     public AzureDevOpsController (IOptions<AzureDevOpsCredential> options, IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
+        
         _clientId = options.Value.ClientId;
         _clientSecret = options.Value.ClientSecret;
         _redirectUri = options.Value.RedirectUri;
+        
+        _organization = options.Value.Organization;
+        _project = options.Value.Project;
     }
 
     public IActionResult Authorize ()
     {
         // https://learn.microsoft.com/en-us/azure/devops/integrate/get-started/authentication/oauth?view=azure-devops#register-your-app
-        var uri = "https://app.vssps.visualstudio.com/oauth2/authorize";
+        const string uri = "https://app.vssps.visualstudio.com/oauth2/authorize";
         var param = new Dictionary<string, string>
         {
             { "response_type", "Assertion" },
             { "client_id", _clientId },
             { "redirect_uri", _redirectUri },
             {
-                "scope",
-                "vso.code_manage vso.project_manage vso.release_manage vso.serviceendpoint_manage vso.taskgroups_manage vso.variablegroups_manage"
+                "scope", "vso.extension.data_write vso.extension_manage vso.gallery_manage vso.machinegroup_manage vso.packaging_manage vso.pipelineresources_manage vso.project_manage vso.release_manage vso.securefiles_manage vso.serviceendpoint_manage vso.symbols_manage vso.taskgroups_manage vso.variablegroups_manage"
             }
         };
 
@@ -46,7 +54,7 @@ public class AzureDevOpsController : Controller
 
     public async Task<IActionResult> Callback ([FromQuery] string code, [FromQuery] string state)
     {
-        var uri = "https://app.vssps.visualstudio.com/oauth2/token";
+        const string uri = "https://app.vssps.visualstudio.com/oauth2/token";
         var param = new Dictionary<string, string>
         {
             { "client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer" },
@@ -79,6 +87,50 @@ public class AzureDevOpsController : Controller
         
         return RedirectToAction("Index", "Home");
     }
-    
-    
+
+    public async Task<IActionResult> TaskGroups ()
+    {
+        if (!HttpContext.Request.Cookies.TryGetValue(CookieNames.AzureDevopsAccessToken, out var accessToken))
+        {
+            throw new Exception("Access token not found");
+        }
+        
+        var uri = $"https://dev.azure.com/{_organization}/{_project}/_apis/distributedtask/taskgroups?api-version=7.0";
+        
+        var response = await PostAzureApiAsync(accessToken, uri);
+
+        var result = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
+        return View(result);
+    }
+
+    public async Task<IActionResult> VariableGroups ()
+    {
+        if (!HttpContext.Request.Cookies.TryGetValue(CookieNames.AzureDevopsAccessToken, out var accessToken))
+        {
+            throw new Exception("Access token not found");
+        }
+        
+        var uri = $"https://dev.azure.com/{_organization}/{_project}/_apis/distributedtask/variablegroups?api-version=7.0";
+        
+        var response = await PostAzureApiAsync(accessToken, uri);
+
+        var result = JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
+        return View(result);
+        
+    }
+
+    private async Task<HttpResponseMessage> PostAzureApiAsync (string accessToken, string uri)
+    {
+        using var httpClient = _httpClientFactory.CreateClient();
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = await httpClient.GetAsync(uri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception(await response.Content.ReadAsStringAsync());
+        }
+
+        return response;
+    }
 }
