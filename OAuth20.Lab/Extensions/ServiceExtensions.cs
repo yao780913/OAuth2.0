@@ -1,4 +1,5 @@
-﻿using OAuth20.Lab.Models;
+﻿using OAuth20.Common.Model;
+using OAuth20.Common.Models;
 
 namespace OAuth20.Lab.Extensions;
 
@@ -12,5 +13,7 @@ public static class ServiceExtensions
         services.Configure<FacebookCredential>(configuration.GetSection("Credentials:Facebook"));
         services.Configure<GoogleCredential>(configuration.GetSection("Credentials:Google"));
         services.Configure<GithubCredential>(configuration.GetSection("Credentials:Github"));
+        services.Configure<AzureDevOpsCredential>(configuration.GetSection("Credentials:AzureDevOps"));
+        
     }
 }

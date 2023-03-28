@@ -6,19 +6,15 @@ using Newtonsoft.Json;
 
 using OAuth20.Lab.Models;
 using OAuth20.Lab.Models.ViewModels;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
+using OAuth20.Common.Model;
+using OAuth20.Common.Models;
 
 namespace OAuth20.Lab.Controllers
 {
     public class LineLoginController : Controller
     {
-        private const string AUTHORIZE_URI = "https://access.line.me/oauth2/v2.1/authorize";
+        private const string AuthorizeUri = "https://access.line.me/oauth2/v2.1/authorize";
 
         private readonly string _redirectUri;
         private readonly string _clientId;
@@ -48,7 +44,7 @@ namespace OAuth20.Lab.Controllers
                 { "state", "123456" }
             };
 
-            var requestUri = QueryHelpers.AddQueryString(AUTHORIZE_URI, param);
+            var requestUri = QueryHelpers.AddQueryString(AuthorizeUri, param);
 
             return Redirect(requestUri);
         }
